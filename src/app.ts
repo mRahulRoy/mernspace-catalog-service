@@ -3,7 +3,7 @@ import config from "config";
 import { globalErrorHandler } from "./common/middlewares/globalErrorHandler";
 import categoryRouter from "./category/category-router";
 import cookieParser from "cookie-parser";
-import authenticate from "./common/middlewares/authenticate";
+
 
 const app = express();
 app.use(express.json());
@@ -14,7 +14,7 @@ app.get("/", (req: Request, res: Response) => {
         port: config.get("server.port"),
     });
 });
-app.use("/categories",authenticate,categoryRouter);
+app.use("/categories",categoryRouter);
 app.use(globalErrorHandler);
 
 export default app;
