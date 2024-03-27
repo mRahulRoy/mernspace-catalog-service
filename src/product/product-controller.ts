@@ -1,12 +1,18 @@
 import { NextFunction, Response } from "express";
 import { Request } from "express-jwt";
+import { v4 as uuidv4 } from "uuid";
 import { validationResult } from "express-validator";
 import createHttpError from "http-errors";
 import { ProductService } from "./product-service";
 import { Product } from "./product-types";
+import { FileStorage } from "../common/types/storage";
+import { UploadedFile } from "express-fileupload";
 
 export class ProductController {
-    constructor(private productService: ProductService) {
+    constructor(
+        private productService: ProductService,
+        private storage: FileStorage,
+    ) {
         // this.create = this.create.bind(this) , can be avoided if we make our methods using arrow function
     }
     create = async (req: Request, res: Response, next: NextFunction) => {
@@ -14,6 +20,15 @@ export class ProductController {
         if (!result.isEmpty()) {
             return next(createHttpError(400, result.array()[0].msg as string));
         }
+
+        //todo image upload
+        const imageName = uuidv4();
+        const image = req.files!.image as UploadedFile;
+
+        await this.storage.upload({
+            filename: imageName,
+            fileData: image.data.buffer,
+        });
 
         const {
             name,
@@ -24,15 +39,16 @@ export class ProductController {
             categoryId,
             isPublish,
         } = req.body;
+
         const product = {
             name,
             description,
-            priceConfiguration:JSON.parse(priceConfiguration as string),
-            attributes :JSON.parse(attributes as string),
+            priceConfiguration: JSON.parse(priceConfiguration as string),
+            attributes: JSON.parse(attributes as string),
             tenantId,
             categoryId,
             isPublish,
-            image: "image.jpeg",
+            image: imageName,
         };
         // Create product
         const newProduct = await this.productService.createProduct(
