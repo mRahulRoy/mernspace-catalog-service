@@ -9,10 +9,7 @@ export class ProductService {
     async getProduct(productId: string) {
         return await productModel.findById(productId);
     }
-    async getProductImage(productId: string) {
-        const product = await productModel.findById(productId);
-        return product!.image;
-    }
+
     async update(productId: string, product: Product) {
         return await productModel.findOneAndUpdate(
             { _id: productId },
