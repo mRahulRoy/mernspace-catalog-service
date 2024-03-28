@@ -1,16 +1,17 @@
+import { paginationLabels } from "../config/pagination";
 import productModel from "./product-model";
-import { Filter, Product } from "./product-types";
+import { Filter, PaginatedQuery, Product } from "./product-types";
 
 export class ProductService {
     async createProduct(product: Product) {
-        return await productModel.create(product);
+        return await productModel.create(product) as Product;
     }
 
     async getProduct(productId: string) {
-        return await productModel.findById(productId);
+        return await productModel.findById(productId) as Product;
     }
 
-    async update(productId: string, product: Product) {
+    async updateProduct(productId: string, product: Product) {
         return await productModel.findOneAndUpdate(
             { _id: productId },
             {
@@ -19,10 +20,10 @@ export class ProductService {
             {
                 new: true,
             },
-        );
+        ) as Product;
     }
 
-    async getProducts(q: string, filters: Filter) {
+    async getProducts(q: string, filters: Filter,paginatedQuery:PaginatedQuery) {
         const searchQueryRegex = new RegExp(q, "i");
         const matchQuery = {
             ...filters,
@@ -55,7 +56,13 @@ export class ProductService {
             }
         ]);
 
-        const result = await aggregate.exec();
-        return result as Product[];
+
+        return productModel.aggregatePaginate(aggregate,{
+            ...paginatedQuery,
+            customLabels : paginationLabels
+        })
+
+        // const result = await aggregate.exec();
+        // return result as Product[];
     }
 }

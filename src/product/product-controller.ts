@@ -101,7 +101,7 @@ export class ProductController {
                 fileData: image.data.buffer,
             });
 
-            await this.storage.delete(oldImage);
+            await this.storage.delete(oldImage!);
         }
 
         const {
@@ -125,35 +125,46 @@ export class ProductController {
             image: imageName ? imageName : (oldImage as string),
         };
 
-        await this.productService.update(productId, productToUpdated);
+        await this.productService.updateProduct(productId, productToUpdated);
 
         res.json({
             _id: productId,
         });
     };
 
-    index = async(req:Request,res:Response,next:NextFunction)=>{
-        const {q,tenantId,categoryId,isPublish}  = req.query;
-        const filters :Filter = {};
+    index = async (req: Request, res: Response, next: NextFunction) => {
+        const { q, tenantId, categoryId, isPublish } = req.query;
+        const filters: Filter = {};
 
-        if(isPublish === "true"){
+        if (isPublish === "true") {
             filters.isPublish = true;
         }
 
-        if(tenantId){
+        if (tenantId) {
             filters.tenantId = tenantId as string;
         }
 
-        if(categoryId && mongoose.Types.ObjectId.isValid(categoryId as string)){
+        if (
+            categoryId &&
+            mongoose.Types.ObjectId.isValid(categoryId as string)
+        ) {
             //here this new keyword will make it a proper mongo object like this from normal id like this "65egshghgshgsha" to 'Object(65ddusdudsgsudus);
-            filters.categoryId = new mongoose.Types.ObjectId(categoryId as string);
+            filters.categoryId = new mongoose.Types.ObjectId(
+                categoryId as string,
+            );
         }
 
-        const products = await this.productService.getProducts(q as string, filters)
-
+        const products = await this.productService.getProducts(
+            q as string,
+            filters,
+            {
+                page : req.query.page ? parseInt(req.query.page as string) : 1 ,
+                limit: req.query.limit ? parseInt(req.query.limit as string) : 10
+            }
+        );
 
         res.json({
-            products
-        })
-    }
+            products,
+        });
+    };
 }
