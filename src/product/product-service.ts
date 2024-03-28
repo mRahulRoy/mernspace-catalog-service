@@ -6,7 +6,7 @@ export class ProductService {
         return await productModel.create(product);
     }
 
-    async getProductById(productId: string) {
+    async getProduct(productId: string) {
         return await productModel.findById(productId);
     }
     async getProductImage(productId: string) {
@@ -24,4 +24,5 @@ export class ProductService {
             },
         );
     }
+  
 }
