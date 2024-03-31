@@ -11,6 +11,7 @@ export class CategoryController {
         private logger: Logger,
     ) {
         this.create = this.create.bind(this);
+        this.index = this.index.bind(this);
     }
 
     async create(req: Request, res: Response, next: NextFunction) {
@@ -33,4 +34,14 @@ export class CategoryController {
             id: category._id,
         });
     }
+
+     async index (
+        req: Request,
+        res: Response,
+        next: NextFunction,
+    ) {
+        const categories = await this.categoryService.getCategories();
+        this.logger.info(`Getting categories list`);
+        res.json(categories);
+    };
 }
